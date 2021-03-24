@@ -1,4 +1,6 @@
-export default {
+import { defineNuxtConfig } from "@nuxtjs/composition-api";
+
+export default defineNuxtConfig({
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
 
@@ -30,7 +32,9 @@ export default {
     // https://go.nuxtjs.dev/typescript
     "@nuxt/typescript-build",
     // https://composition-api.nuxtjs.org/
-    "@nuxtjs/composition-api"
+    "@nuxtjs/composition-api",
+
+    "@nuxtjs/google-fonts"
   ],
 
   // Modules: https://go.nuxtjs.dev/config-modules
@@ -46,7 +50,16 @@ export default {
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
-  axios: {},
+  axios: {
+    baseURL: "http://localhost:3000"
+  },
+
+  googleFonts: {
+    prefetch: true,
+    families: {
+      Sora: true
+    }
+  },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
@@ -57,4 +70,4 @@ export default {
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {}
-};
+});

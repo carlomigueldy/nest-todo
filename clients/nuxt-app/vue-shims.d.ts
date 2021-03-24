@@ -1,21 +1,21 @@
 import { Plugin } from "@nuxt/types";
 
-type ChakraToastOption = {
-  title: string;
+declare type ChakraToastOption = {
+  title?: string;
   description?: string;
-  status: "success" | "error" | "warning" | "info";
-  isClosable: boolean;
-  variant: "solid" | "subtle" | "left-accent" | "top-accent";
-  duration: number;
-  onClose: () => void;
-  position:
+  status?: "success" | "error" | "warning" | "info";
+  isClosable?: boolean;
+  variant?: "solid" | "subtle" | "left-accent" | "top-accent";
+  duration?: number;
+  onClose?: () => void;
+  position?:
     | "top"
     | "top-left"
     | "top-right"
     | "bottom"
     | "bottom-left"
     | "bottom-right";
-  render: (props: { onClose: () => void; id: string }) => Vue.VNode;
+  render?: (props: { onClose: () => void; id: string }) => Vue.VNode;
 };
 
 declare module "vue/types/vue" {
