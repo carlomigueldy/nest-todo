@@ -18,7 +18,7 @@
           </c-form-control>
           <c-form-control>
             <c-form-label for="description">Description</c-form-label>
-            <c-textarea
+            <c-input
               id="description"
               v-model="createTodoDtoForm.description"
               placeholder="Here is a sample placeholder"
@@ -28,14 +28,16 @@
               Describe the task
             </c-form-helper-text>
           </c-form-control>
-          <c-button type="submit" size="lg" variant-color="green"
-            >Submit</c-button
-          >
+          <c-button type="submit" size="lg" variant-color="green">
+            Submit
+          </c-button>
         </c-stack>
       </form>
 
       <code>{{ state.form }}</code>
+    </c-box>
 
+    <c-box m="10" p="5" borderRadius="md" boxShadow="lg">
       <c-list v-if="hasTodos" spacing="3">
         <c-list-item
           v-for="({ title, _id }, index) in state.todos"
@@ -44,9 +46,63 @@
           <c-list-icon icon="check-circle" color="blue.500" />
           {{ title }}
           <c-button @click="deleteTodo(_id)">Delete</c-button>
+          <c-button @click="editTodo(_id)">Edit</c-button>
         </c-list-item>
       </c-list>
     </c-box>
+
+    <!-- edit modal -->
+    <c-modal
+      :is-open="modalController.opened"
+      :closeOnOverlayClick="false"
+      is-centered
+    >
+      <c-modal-content ref="content">
+        <c-modal-header>Edit Todo</c-modal-header>
+        <c-modal-close-button
+          @click="modalController.opened = !modalController.opened"
+        />
+        <c-modal-body>
+          <form @submit.prevent="updateTodo">
+            <c-stack spacing="3">
+              <c-form-control>
+                <c-form-label for="title">Title</c-form-label>
+                <c-input
+                  id="title"
+                  v-model="editTodoDtoForm.title"
+                  placeholder="Todo title"
+                  aria-describedby="todo-helper-text"
+                />
+                <c-form-helper-text id="todo-helper-text">
+                  What is the title of this task?
+                </c-form-helper-text>
+              </c-form-control>
+              <c-form-control>
+                <c-form-label for="description">Description</c-form-label>
+                <c-input
+                  id="description"
+                  v-model="editTodoDtoForm.description"
+                  placeholder="Here is a sample placeholder"
+                  aria-describedby="description-helper-text"
+                />
+                <c-form-helper-text id="description-helper-text">
+                  Describe the task
+                </c-form-helper-text>
+              </c-form-control>
+              <c-button type="submit" size="lg" variant-color="green">
+                Submit
+              </c-button>
+            </c-stack>
+          </form>
+        </c-modal-body>
+        <c-modal-footer>
+          <c-button @click="modalController.opened = !modalController.opened">
+            Cancel
+          </c-button>
+        </c-modal-footer>
+      </c-modal-content>
+      <c-modal-overlay />
+    </c-modal>
   </div>
 </template>
 
@@ -68,7 +124,8 @@ type Todo = {
   isCompleted: boolean;
 };
 
-interface CreateTodoDto {
+interface TodoDto {
+  _id?: string;
   title: string;
   description?: string;
   categories?: string[];
@@ -79,7 +136,8 @@ type State = {
   todos: Todo[];
 };
 
-const initialCreateTodoDto: CreateTodoDto = {
+const initialCreateTodoDto: TodoDto = {
+  _id: null,
   title: "",
   description: "",
   categories: []
@@ -99,7 +157,9 @@ export default defineComponent({
         }
       ]
     });
-    const createTodoDtoForm = ref<CreateTodoDto>({ ...initialCreateTodoDto });
+    const modalController = ref({ opened: false });
+    const createTodoDtoForm = ref<TodoDto>({ ...initialCreateTodoDto });
+    const editTodoDtoForm = ref<TodoDto>({ ...initialCreateTodoDto });
     const hasTodos = computed(() => state.todos.length > 0);
     const $chakraColorMode: any = inject("$chakraColorMode");
     const $toggleColorMode: any = inject("$toggleColorMode");
@@ -132,8 +192,27 @@ export default defineComponent({
         duration: 2000,
         isClosable: true
       });
-      createTodoDtoForm.value = initialCreateTodoDto;
+      createTodoDtoForm.value = { ...initialCreateTodoDto };
       console.log({ data }, createTodoDtoForm.value);
+    }
+    async function updateTodo() {
+      // @ts-ignore
+      const data = await ctx.$axios.$put(
+        `todos/${editTodoDtoForm.value._id}`,
+        editTodoDtoForm.value
+      );
+      getAllTodo();
+
+      // @ts-ignore
+      this.$toast({
+        title: "Updated",
+        description: "Todo has been updated",
+        status: "info",
+        duration: 2000,
+        isClosable: true
+      });
+      console.log({ data }, editTodoDtoForm.value);
+      modalController.value.opened = false;
     }
     async function getAllTodo() {
       // @ts-ignore
@@ -145,6 +224,12 @@ export default defineComponent({
       const deletedData = await ctx.$axios.$delete(`todos/${id}`);
       console.log(deletedData);
       getAllTodo();
+    }
+    async function editTodo(id: string) {
+      // @ts-ignore
+      const todo = await ctx.$axios.$get(`todos/${id}`);
+      editTodoDtoForm.value = todo;
+      modalController.value.opened = true;
     }
 
     onMounted(() => {
@@ -159,8 +244,12 @@ export default defineComponent({
       hasTodos,
       showToast,
       createTodo,
+      updateTodo,
       deleteTodo,
-      createTodoDtoForm
+      editTodo,
+      createTodoDtoForm,
+      editTodoDtoForm,
+      modalController
     };
   }
 });
