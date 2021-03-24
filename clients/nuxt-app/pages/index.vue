@@ -16,16 +16,12 @@
           <CIconButton
             mr="3"
             :icon="colorMode === 'light' ? 'moon' : 'sun'"
-            :aria-label="`Switch to ${
-              colorMode === 'light' ? 'dark' : 'light'
-            } mode`"
+            :aria-label="
+              `Switch to ${colorMode === 'light' ? 'dark' : 'light'} mode`
+            "
             @click="toggleColorMode"
           />
-          <CButton
-            left-icon="info"
-            variant-color="blue"
-            @click="showToast"
-          >
+          <CButton left-icon="info" variant-color="blue" @click="showToast">
             Show Toast
           </CButton>
         </CBox>
@@ -88,7 +84,7 @@
   </div>
 </template>
 
-<script lang="js">
+<script lang="ts">
 import {
   CBox,
   CButton,
@@ -105,10 +101,16 @@ import {
   CIconButton,
   CFlex,
   CHeading
-} from '@chakra-ui/vue'
+} from "@chakra-ui/vue";
+import {
+  computed,
+  defineComponent,
+  inject,
+  reactive,
+  useContext
+} from "@nuxtjs/composition-api";
 
-export default {
-  name: 'App',
+export default defineComponent({
   components: {
     CBox,
     CButton,
@@ -126,43 +128,47 @@ export default {
     CFlex,
     CHeading
   },
-  inject: ['$chakraColorMode', '$toggleColorMode'],
-  data () {
-    return {
+  inject: ["$chakraColorMode", "$toggleColorMode"],
+  setup() {
+    const ctx = useContext();
+    const state = reactive({
       showModal: false,
       mainStyles: {
         dark: {
-          bg: 'gray.700',
-          color: 'whiteAlpha.900'
+          bg: "gray.700",
+          color: "whiteAlpha.900"
         },
         light: {
-          bg: 'white',
-          color: 'gray.900'
+          bg: "white",
+          color: "gray.900"
         }
       }
-    }
-  },
-  computed: {
-    colorMode () {
-      return this.$chakraColorMode()
-    },
-    theme () {
-      return this.$chakraTheme()
-    },
-    toggleColorMode () {
-      return this.$toggleColorMode
-    }
-  },
-  methods: {
-    showToast () {
+    });
+    const $chakraColorMode: any = inject("$chakraColorMode");
+    const $toggleColorMode: any = inject("$toggleColorMode");
+    const colorMode = computed(() => $chakraColorMode());
+    const toggleColorMode = computed(() => $toggleColorMode());
+    // @ts-ignore
+    const theme = computed(() => ctx.$chakraTheme());
+
+    function showToast() {
+      // @ts-ignore
       this.$toast({
-        title: 'Account created.',
+        title: "Account created.",
         description: "We've created your account for you.",
-        status: 'success',
+        status: "success",
         duration: 10000,
         isClosable: true
-      })
+      });
     }
+
+    return {
+      ...state,
+      colorMode,
+      toggleColorMode,
+      theme,
+      showToast
+    };
   }
-}
+});
 </script>
