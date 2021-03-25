@@ -28,6 +28,7 @@ export class UserService implements BaseServiceInterface<User> {
       ...createModelDto,
       password: await bcrypt.hash(createModelDto.password, 10),
       createdAt: new Date(),
+      updatedAt: new Date(),
     }).save();
   }
 
