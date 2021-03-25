@@ -1,4 +1,4 @@
-export interface BaseServiceInterface<T> {
+export interface BaseController<T> {
   findAll(): Promise<T[]>;
 
   findOne(id: string): Promise<T>;
@@ -9,5 +9,5 @@ export interface BaseServiceInterface<T> {
 
   delete(id: string): Promise<T>;
 
-  deleteForever(id: string): Promise<T>;
+  forceDelete(id: string): Promise<T>;
 }
