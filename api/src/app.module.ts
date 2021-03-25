@@ -10,8 +10,8 @@ import { UserModule } from './user/user.module';
   imports: [
     MongooseModule.forRoot('mongodb://localhost/nest-todo'),
     TodoModule,
-    AuthModule,
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
