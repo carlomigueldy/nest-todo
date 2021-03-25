@@ -5,12 +5,11 @@ import { BaseServiceInterface } from 'src/common/interfaces/base-service.interfa
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User, UserDocument } from './schemas/user.schema';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService implements BaseServiceInterface<User> {
-  constructor(
-    @InjectModel(User.name) private readonly model: Model<UserDocument>,
-  ) {}
+  constructor(@InjectModel(User.name) private model: Model<UserDocument>) {}
 
   async findAll(): Promise<User[]> {
     return await this.model.find({ deletedAt: null }).exec();
@@ -20,8 +19,16 @@ export class UserService implements BaseServiceInterface<User> {
     return await this.model.findOne({ _id: id, deletedAt: null }).exec();
   }
 
+  async findByEmail(email: string): Promise<User> {
+    return await this.model.findOne({ email: email }).exec();
+  }
+
   async create(createModelDto: CreateUserDto): Promise<User> {
-    return await new this.model(createModelDto).save();
+    return await new this.model({
+      ...createModelDto,
+      password: await bcrypt.hash(createModelDto.password, 10),
+      createdAt: new Date(),
+    }).save();
   }
 
   async update(id: string, updateModelDto: UpdateUserDto): Promise<User> {

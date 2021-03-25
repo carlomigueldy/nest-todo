@@ -8,34 +8,38 @@ import { Todo, TodoDocument } from './schemas/todo.schema';
 
 @Injectable()
 export class TodoService implements BaseServiceInterface<Todo> {
-  constructor(@InjectModel(Todo.name) private model: Model<TodoDocument>) { }
+  constructor(
+    @InjectModel(Todo.name) private readonly model: Model<TodoDocument>,
+  ) {}
 
   async findAll(): Promise<Todo[]> {
-    return await this.model.find({ deletedAt: null }).exec()
+    return await this.model.find({ deletedAt: null }).exec();
   }
 
   async findOne(id: string): Promise<Todo> {
-    return await this.model.findById(id).exec()
+    return await this.model.findById(id).exec();
   }
 
   async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    const created = new this.model(createTodoDto)
+    const created = new this.model(createTodoDto);
 
-    return await created.save()
+    return await created.save();
   }
 
   async update(id: string, updateTodoDto: UpdateTodoDto): Promise<Todo> {
     return await this.model.findByIdAndUpdate(id, {
       ...updateTodoDto,
-      updatedAt: new Date()
-    })
+      updatedAt: new Date(),
+    });
   }
 
   async delete(id: string): Promise<Todo> {
-    return await this.model.findByIdAndUpdate(id, { deletedAt: new Date() }).exec()
+    return await this.model
+      .findByIdAndUpdate(id, { deletedAt: new Date() })
+      .exec();
   }
 
   async deleteForever(id: string): Promise<Todo> {
-    return await this.model.findByIdAndDelete(id)
+    return await this.model.findByIdAndDelete(id);
   }
 }
