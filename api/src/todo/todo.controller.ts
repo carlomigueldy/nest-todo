@@ -41,7 +41,7 @@ export class TodoController {
     return await this.service.delete(id);
   }
 
-  @Delete(':id')
+  @Delete(':id/force-delete')
   async forceDelete(@Param('id') id: string) {
     return await this.service.deleteForever(id);
   }
