@@ -1,35 +1,25 @@
-import {
-  Body,
-  Controller,
-  HttpCode,
-  Post,
-  Query,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { User } from 'src/user/schemas/user.schema';
-import { UserService } from 'src/user/user.service';
+import { Controller, Get, Post, Req, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthLoginDto } from './dto/login.dto';
-import * as bcrypt from 'bcrypt';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { UserDocument } from 'src/user/schemas/user.schema';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly service: AuthService,
-    private readonly userService: UserService,
-  ) {}
+  constructor(private readonly service: AuthService) {}
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  @HttpCode(200)
-  async loginWithEmail(@Body() authDto: AuthLoginDto) {
-    const user = await this.service.validateUser(authDto.email, authDto.password);
+  async login(@Request() request) {
+    const user = request.user as UserDocument;
+    return await this.service.login(user);
+  }
 
-    console.log(user)
+  @UseGuards(JwtAuthGuard)
+  @Get('user')
+  async user(@Request() request) {
+    console.log('User');
 
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-
-    return user;
+    return request.user;
   }
 }

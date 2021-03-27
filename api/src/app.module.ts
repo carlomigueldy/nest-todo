@@ -11,7 +11,7 @@ import { UserModule } from './user/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    MongooseModule.forRoot('mongodb://localhost/nest-todo'),
+    MongooseModule.forRoot(process.env.MONGODB_HOST),
     TodoModule,
     UserModule,
     AuthModule,

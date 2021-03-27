@@ -19,7 +19,7 @@ export class UserService implements BaseServiceInterface<User> {
     return await this.model.findOne({ _id: id, deletedAt: null }).exec();
   }
 
-  async findByEmail(email: string): Promise<User> {
+  async findByEmail(email: string): Promise<UserDocument> {
     return await this.model.findOne({ email: email }).exec();
   }
 
